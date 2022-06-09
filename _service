@@ -1,0 +1,21 @@
+<!--
+  https://github.com/openSUSE/obs-service-tar_scm/blob/master/tar_scm.service.in
+  revision:
+    - @PARENT_TAG@ for stable releases
+    - 1.1 for nightly
+-->
+
+<services>
+  <service name="obs_scm">
+    <param name="url">https://github.com/hg/tinc</param>
+    <param name="scm">git</param>
+    <param name="revision">1.1</param>
+    <param name="match-tag">release-*</param>
+    <param name="versionrewrite-pattern">release-(.*)</param>
+    <param name="versionformat">@PARENT_TAG@.%h</param>
+    <param name="changesgenerate">enable</param>
+  </service>
+  <service name="tar" mode="buildtime" />
+  <service name="set_version" mode="buildtime" />
+</services>
+
