@@ -11,38 +11,10 @@ URL:            https://www.tinc-vpn.org/
 Source0:        tinc-%{version}.tar
 
 BuildRequires: meson
-BuildRequires: texinfo
 BuildRequires: pkgconf
 
-%if 0%{?suse_version}
-BuildRequires: readline-devel
-
-BuildRequires: pkgconfig(libsystemd)
-BuildRequires: pkgconfig(lzo2)
-BuildRequires: pkgconfig(ncurses)
-BuildRequires: pkgconfig(openssl)
-BuildRequires: pkgconfig(zlib)
-%endif
-
-%if 0%{?fedora_version}
-BuildRequires: util-linux-core
-BuildRequires: glibc-langpack-en
-
-BuildRequires: openssl-devel
-BuildRequires: pkgconfig(liblz4)
-BuildRequires: pkgconfig(libsystemd)
-BuildRequires: pkgconfig(lzo2)
-BuildRequires: pkgconfig(ncurses)
-BuildRequires: pkgconfig(openssl)
-BuildRequires: pkgconfig(readline)
-BuildRequires: pkgconfig(systemd)
-BuildRequires: pkgconfig(zlib)
-%endif
-
-%if 0%{?debian} || 0%{?ubuntu}
-BuildRequires: bzr
+%if "%{_vendor}" == "debbuild"
 BuildRequires: debbuild-macros
-
 BuildRequires: liblz4-dev
 BuildRequires: liblzo2-dev
 BuildRequires: libncurses5-dev
@@ -50,6 +22,24 @@ BuildRequires: libreadline-dev
 BuildRequires: libssl-dev
 BuildRequires: libsystemd-dev
 BuildRequires: zlib1g-dev
+%else
+BuildRequires: pkgconfig(liblz4)
+BuildRequires: pkgconfig(libsystemd)
+BuildRequires: pkgconfig(lzo2)
+BuildRequires: pkgconfig(ncurses)
+BuildRequires: pkgconfig(openssl)
+BuildRequires: pkgconfig(zlib)
+%endif
+
+%if 0%{?suse_version}
+BuildRequires: makeinfo
+BuildRequires: readline-devel
+%else
+BuildRequires: texinfo
+%endif
+
+%if 0%{?fedora} || 0%{?rhel}
+BuildRequires: pkgconfig(readline)
 %endif
 
 Requires(post):   systemd info
