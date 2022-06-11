@@ -1,14 +1,15 @@
-%define svc tinc@.service
-
 Name:           tinc
 Version:        1.1
 Release:        0
-Summary:        A virtual private network daemon
+Summary:        A Virtual Private Network daemon
 License:        GPL-2.0+
 Group:          Productivity/Networking/Security
 URL:            https://www.tinc-vpn.org/
 
-Source0:        tinc-%{version}.tar
+%define _svc     tinc.service tinc@.service
+%define _archive tinc-%{version}
+
+Source0:        %{_archive}.tar
 
 BuildRequires: meson
 BuildRequires: pkgconf
@@ -21,6 +22,7 @@ BuildRequires: libncurses5-dev
 BuildRequires: libreadline-dev
 BuildRequires: libssl-dev
 BuildRequires: libsystemd-dev
+BuildRequires: systemd
 BuildRequires: zlib1g-dev
 %else
 BuildRequires: pkgconfig(liblz4)
@@ -28,6 +30,7 @@ BuildRequires: pkgconfig(libsystemd)
 BuildRequires: pkgconfig(lzo2)
 BuildRequires: pkgconfig(ncurses)
 BuildRequires: pkgconfig(openssl)
+BuildRequires: pkgconfig(systemd)
 BuildRequires: pkgconfig(zlib)
 %endif
 
@@ -42,9 +45,13 @@ BuildRequires: texinfo
 BuildRequires: pkgconfig(readline)
 %endif
 
-Requires(post):   systemd info
-Requires(preun):  systemd info
-Requires(postun): systemd
+%systemd_requires
+
+Requires(post):  info
+Requires(preun): info
+
+# prevent setting auto features to 'enabled'
+%define __meson_auto_features auto
 
 %description
 tinc is a Virtual Private Network (VPN) daemon that uses tunnelling
@@ -55,11 +62,8 @@ existing software. This tunnelling allows VPN sites to share
 information with each other over the Internet without exposing any
 information to others.
 
-%define debug_package %{nil}
-%define __meson_auto_features auto
-
 %prep
-%setup -n tinc-%{version}
+%setup -n %{_archive}
 
 %build
 %meson
@@ -67,10 +71,31 @@ information to others.
 
 %install
 %meson_install
+mkdir -p %{buildroot}/etc/tinc
+
+%if 0%{?suse_version}
+ln -s service %{buildroot}%{_sbindir}/rctinc
+%endif
+
+%pre
+%{?systemd_pre:%systemd_pre %_svc}
+
+%post
+%systemd_post %_svc
+install-info %{_infodir}/tinc.info %{_infodir}/dir || :
+
+%preun
+%systemd_preun %_svc
+install-info --delete %{_infodir}/tinc.info %{_infodir}/dir || :
+
+%postun
+%systemd_postun_with_restart %_svc
 
 %files
-%doc AUTHORS COPYING.README NEWS README.md THANKS doc/sample*
+%doc NEWS README.md QUICKSTART.md doc/sample-config/
 %license COPYING
+%config(noreplace) /etc/tinc/
+
 %{_mandir}/man*/tinc*.*
 %{_infodir}/tinc.info*
 %{_sbindir}/tinc
@@ -78,36 +103,8 @@ information to others.
 %{_unitdir}/tinc*.service
 %{_datadir}/bash-completion/completions/tinc
 
-################################################################################
-# SLES & OpenSUSE
-################################################################################
 %if 0%{?suse_version}
-%pre
-%service_add_pre %{svc}
-
-%post
-%service_add_post %{svc}
-install-info %{_infodir}/tinc.info %{_infodir}/dir || :
-
-%preun
-%service_del_preun %{svc}
-install-info --delete %{_infodir}/tinc.info %{_infodir}/dir || :
-
-%postun
-%service_del_postun %{svc}
-%endif
-
-################################################################################
-# Fedora, Debian, Ubuntu
-################################################################################
-%if 0%{?debian} || 0%{?ubuntu} || 0%{?fedora_version}
-%post
-%systemd_post %{svc}
-install-info %{_infodir}/tinc.info %{_infodir}/dir || :
-
-%preun
-%systemd_preun %{svc}
-install-info --delete %{_infodir}/tinc.info %{_infodir}/dir || :
+%{_sbindir}/rctinc
 %endif
 
 %changelog

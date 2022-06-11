@@ -1,4 +1,5 @@
 <!--
+  vim: ft=xml sw=2 sts=2
   https://github.com/openSUSE/obs-service-tar_scm/blob/master/tar_scm.service.in
   revision:
     - @PARENT_TAG@ for stable releases
