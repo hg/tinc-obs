@@ -4,13 +4,14 @@ Release:        0
 Summary:        A Virtual Private Network daemon
 License:        GPL-2.0+
 Group:          Productivity/Networking/Security
-URL:            https://www.tinc-vpn.org/
+URL:            https://www.tinc-vpn.org
 
 %define _svc     tinc.service tinc@.service
 %define _archive tinc-%{version}
 
 Source0:        %{_archive}.tar
 
+BuildRequires: git
 BuildRequires: meson
 BuildRequires: pkgconf
 
@@ -24,29 +25,31 @@ BuildRequires: libssl-dev
 BuildRequires: libsystemd-dev
 BuildRequires: systemd
 BuildRequires: zlib1g-dev
+BuildRequires: texinfo
 %else
 BuildRequires: pkgconfig(liblz4)
 BuildRequires: pkgconfig(libsystemd)
-BuildRequires: pkgconfig(lzo2)
 BuildRequires: pkgconfig(ncurses)
 BuildRequires: pkgconfig(openssl)
 BuildRequires: pkgconfig(systemd)
 BuildRequires: pkgconfig(zlib)
+BuildRequires: readline-devel
+
+%if 0%{?rhel} == 8
+BuildRequires: lzo-devel
+%else
+BuildRequires: pkgconfig(lzo2)
 %endif
 
 %if 0%{?suse_version}
 BuildRequires: makeinfo
-BuildRequires: readline-devel
 %else
 BuildRequires: texinfo
 %endif
 
-%if 0%{?fedora} || 0%{?rhel}
-BuildRequires: pkgconfig(readline)
 %endif
 
 %systemd_requires
-
 Requires(post):  info
 Requires(preun): info
 
