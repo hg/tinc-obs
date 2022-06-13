@@ -33,7 +33,12 @@ BuildRequires: pkgconfig(ncurses)
 BuildRequires: pkgconfig(openssl)
 BuildRequires: pkgconfig(systemd)
 BuildRequires: pkgconfig(zlib)
+
+%if 0%{?rhel} == 8 || (0%{?suse_version} && 0%{?suse_version} < 1599)
 BuildRequires: readline-devel
+%else
+BuildRequires: pkgconfig(readline)
+%endif
 
 %if 0%{?rhel} == 8
 BuildRequires: lzo-devel
